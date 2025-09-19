@@ -60,12 +60,15 @@ class Tree {
     deleteItem(value) {
         let currentNode = this.root;
         if (currentNode == null) {
-            return;
+            return null;
         }
-        this.root = deleteItemRec(currentNode, value);
+        this.root = this.deleteItemRec(currentNode, value);
     }
 
     deleteItemRec(currentNode, value) {
+        if(currentNode == null) {
+            return null;
+        }
         if (value > currentNode.value) {
             currentNode.right = this.deleteItemRec(currentNode.right, value);
         } else if (value < currentNode.value) {
@@ -195,10 +198,11 @@ class Tree {
     }
 
     height(value) {
-        let currentNode = this.noOfEdges(this.root, 0, value)[1];
+        let currentNode = this.noOfEdges(this.root, 0, value);
         if (currentNode == null) {
             return null;
         }
+        currentNode = currentNode[1];
         return this.heightRec(currentNode);
     }
 
@@ -263,4 +267,89 @@ class Tree {
         this.root = this.buildTree(array);
 
     }
+
+    // given in odin
+    prettyPrint(node, prefix = '', isLeft = true) {
+        if (node === null) {
+            return;
+        }
+        if (node.right !== null) {
+            this.prettyPrint(node.right, `${prefix}${isLeft ? '│   ' : '    '}`, false);
+        }
+        console.log(`${prefix}${isLeft ? '└── ' : '┌── '}${node.value}`);
+        if (node.left !== null) {
+            this.prettyPrint(node.left, `${prefix}${isLeft ? '    ' : '│   '}`, true);
+        }
+    }
 }
+
+let tree = new Tree([10, 5, 15, 3, 7, 12, 18]);
+tree.prettyPrint(tree.root) // Should show a balanced tree structure
+
+// insert nodes
+tree.insert(6);
+tree.insert(8);
+tree.insert(20);
+console.log(tree.find(6).value); // 6
+console.log(tree.find(8).value); // 8
+console.log(tree.find(20).value); // 20
+console.log(tree.find(999)); // false, not found
+tree.prettyPrint(tree.root);
+
+// check height 
+console.log(tree.height(10)); // height of root node
+console.log(tree.height(5));  // height of subtree
+console.log(tree.height(999)); // null, value doesn't exist
+
+// check depth
+console.log(tree.depth(10)); // 0, root node
+console.log(tree.depth(5));  // depth from root
+console.log(tree.depth(6));  // depth from root
+console.log(tree.depth(999)); // null
+
+// check balance
+console.log(tree.isBalanced()); // true for current balanced tree
+
+// delete nodes
+tree.deleteItem(3);   // leaf node
+tree.deleteItem(15);  // node with two children
+tree.deleteItem(999); // non-existent node
+console.log(tree.find(3));  // false
+console.log(tree.find(15)); // false
+console.log(tree.isBalanced()); // depends on tree structure
+tree.prettyPrint(tree.root);
+
+// rebalance tree
+tree.rebalance();  
+console.log(tree.isBalanced()); // should be true
+tree.prettyPrint(tree.root);
+
+// traversals
+console.log("In-order:");
+tree.inOrderForEach(node => console.log(node.value));
+
+console.log("Pre-order:");
+tree.preOrderForEach(node => console.log(node.value));
+
+console.log("Post-order:");
+tree.postOrderForEach(node => console.log(node.value));
+
+// edge cases
+// insert into empty tree
+let emptyTree = new Tree([]);
+emptyTree.insert(50);
+console.log("\n", emptyTree.root.value); // 50
+
+// rebalance
+console.log(tree.isBalanced());
+emptyTree.rebalance();
+console.log(emptyTree.root.value); // 50 (or null if deleted before)
+
+// delete node
+emptyTree.deleteItem(50);
+console.log(emptyTree.root); // null
+
+// rebalance
+console.log(tree.isBalanced());
+emptyTree.rebalance();
+console.log(emptyTree.root); // should be null
